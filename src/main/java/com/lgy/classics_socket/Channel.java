@@ -7,7 +7,7 @@ import java.net.Socket;
  * @author: Administrator
  * @date: 2023/9/16
  */
-public interface Channel<T> extends Communicate<Message>{
+public interface Channel<T,S> extends Communicate<S>{
     boolean isClose();
     boolean isConnected();
     T getChannelInfo();

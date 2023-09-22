@@ -45,12 +45,8 @@ public class ClientCommunicator {
         ThreadPoolUtil.execute(new Runnable() {
             @Override
             public void run() {
-                ChannelInfo info = new ChannelInfo(client.getInfo(),message.getReceiver());
-                Log.e("qwe","==============1");
-                Channel channel = ChannelManager.getInstance().getChannel(info);
-                Log.e("qwe","==============2"+channel.isConnected());
-                ((ClassicsChannel)channel).send(message);
-                Log.e("qwe","==============3");
+                ChannelInfo info = new ChannelInfo(message.getSender(),message.getReceiver());
+                ChannelManager.getInstance().getChannel(info).send(message);
             }
         });
     }

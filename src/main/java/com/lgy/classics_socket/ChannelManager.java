@@ -5,8 +5,6 @@ import android.text.TextUtils;
 import com.lgy.classics_socket.util.CommonUtil;
 
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ChannelManager {
 
     private volatile static ChannelManager instance;
-    private Map<String,Channel> channelMap;
+    private Map<String,Channel<ChannelInfo,Message>> channelMap;
     private List<ConnectedListener<ChannelInfo>> connectedListeners;
     private ChannelManager(){
         channelMap = new ConcurrentHashMap<>();
@@ -48,7 +46,7 @@ public class ChannelManager {
         return null;
     }
 
-    private void notify(Channel<ChannelInfo> channel){
+    private void notify(Channel<ChannelInfo,Message> channel){
         for (ConnectedListener<ChannelInfo> listener :
         connectedListeners) {
             listener.onConnected(channel.getChannelInfo());
@@ -59,7 +57,7 @@ public class ChannelManager {
         if (socket.isConnected()) {
             String key = getKeyBySocket(socket);
             if (!channelMap.containsKey(key)) {
-                Channel<ChannelInfo> channel = new ClassicsChannel(socket);
+                Channel<ChannelInfo,Message> channel = new ClassicsChannel(socket);
                 channelMap.put(key,channel);
                 notify(channel);
             }
@@ -68,7 +66,7 @@ public class ChannelManager {
         }
     }
 
-    public void addChannel(Channel<ChannelInfo> channel){
+    public void addChannel(Channel<ChannelInfo,Message> channel){
         if (channel.isConnected()) {
             CommunicatorInfo local = channel.getChannelInfo().getLocal();
             CommunicatorInfo remote = channel.getChannelInfo().getRemote();
@@ -82,7 +80,7 @@ public class ChannelManager {
         }
     }
 
-    public Channel getChannel(ChannelInfo info){
+    public Channel<ChannelInfo,Message> getChannel(ChannelInfo info){
         if (info != null) {
             CommunicatorInfo local = info.getLocal();
             CommunicatorInfo remote = info.getRemote();
@@ -92,7 +90,7 @@ public class ChannelManager {
         return null;
     }
 
-    public Channel remoteChannel(CommunicatorInfo localInfo,CommunicatorInfo remoteInfo){
+    public Channel<ChannelInfo,Message> remoteChannel(CommunicatorInfo localInfo,CommunicatorInfo remoteInfo){
         return channelMap.remove(CommonUtil.getKeyByMD5(localInfo.getIp(),localInfo.getPort(),remoteInfo.getIp(),remoteInfo.getPort()));
     }
 

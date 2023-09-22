@@ -1,7 +1,5 @@
 package com.lgy.classics_socket;
 
-import android.util.Log;
-
 import com.google.gson.Gson;
 import com.lgy.classics_socket.util.ThreadPoolUtil;
 
@@ -44,13 +42,8 @@ public class ServerCommunicator {
             ThreadPoolUtil.execute(new Runnable() {
                 @Override
                 public void run() {
-                    ChannelInfo info = new ChannelInfo((CommunicatorInfo) server.getInfo(),message.getReceiver());
-//                    ChannelManager.getInstance().getChannel(info).send(message.getMessage());
-                    Log.e("qwe","s==============1");
-                    Channel channel = ChannelManager.getInstance().getChannel(info);
-                    Log.e("qwe","s==============2"+channel.isConnected());
-                    ((ClassicsChannel)channel).send(message);
-                    Log.e("qwe","s==============3");
+                    ChannelInfo info = new ChannelInfo(message.getSender(),message.getReceiver());
+                    ChannelManager.getInstance().getChannel(info).send(message);
                 }
             });
         }

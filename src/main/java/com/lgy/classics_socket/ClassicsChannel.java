@@ -8,7 +8,7 @@ import java.net.Socket;
  * @author: Administrator
  * @date: 2023/9/16
  */
-public class ClassicsChannel implements Channel<ChannelInfo> {
+public class ClassicsChannel implements Channel<ChannelInfo,Message> {
     private Socket socket;
     private ObjectOutputStream oos;
     ObjectInputStream ois;
