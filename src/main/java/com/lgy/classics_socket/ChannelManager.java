@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ChannelManager {
 
     private volatile static ChannelManager instance;
-    private Map<String,Channel<ChannelInfo,Message>> channelMap;
+    private Map<String,Channel<ChannelInfo>> channelMap;
     private List<ConnectedListener<ChannelInfo>> connectedListeners;
     private ChannelManager(){
         channelMap = new ConcurrentHashMap<>();
@@ -46,7 +46,7 @@ public class ChannelManager {
         return null;
     }
 
-    private void notify(Channel<ChannelInfo,Message> channel){
+    private void notify(Channel<ChannelInfo> channel){
         for (ConnectedListener<ChannelInfo> listener :
         connectedListeners) {
             listener.onConnected(channel.getChannelInfo());
@@ -56,12 +56,12 @@ public class ChannelManager {
     public void addSocket(Socket socket){
         String key = getKeyBySocket(socket);
         if (!channelMap.containsKey(key)) {
-            Channel<ChannelInfo,Message> channel = new ClassicsChannel(socket);
+            Channel<ChannelInfo> channel = new ClassicsChannel(socket);
             addChannel(channel);
         }
     }
 
-    public void addChannel(Channel<ChannelInfo,Message> channel){
+    public void addChannel(Channel<ChannelInfo> channel){
         CommunicatorInfo local = channel.getChannelInfo().getLocal();
         CommunicatorInfo remote = channel.getChannelInfo().getRemote();
         if (channel.isConnected()&& !channel.isClose()) {
@@ -79,12 +79,12 @@ public class ChannelManager {
         }
     }
 
-    public Channel<ChannelInfo,Message> getChannel(ChannelInfo info){
+    public Channel<ChannelInfo> getChannel(ChannelInfo info){
         if (info != null) {
             CommunicatorInfo local = info.getLocal();
             CommunicatorInfo remote = info.getRemote();
             String key = CommonUtil.getKeyByMD5(local.getIp(),local.getPort(),remote.getIp(),remote.getPort());
-            Channel<ChannelInfo,Message> channel = channelMap.get(key);
+            Channel<ChannelInfo> channel = channelMap.get(key);
             if (channel.isConnected()&& !channel.isClose()) {
                 return channel;
             }else {
@@ -95,7 +95,7 @@ public class ChannelManager {
         return null;
     }
 
-    public Channel<ChannelInfo,Message> remoteChannel(CommunicatorInfo localInfo,CommunicatorInfo remoteInfo){
+    public Channel<ChannelInfo> remoteChannel(CommunicatorInfo localInfo,CommunicatorInfo remoteInfo){
         return channelMap.remove(CommonUtil.getKeyByMD5(localInfo.getIp(),localInfo.getPort(),remoteInfo.getIp(),remoteInfo.getPort()));
     }
 
