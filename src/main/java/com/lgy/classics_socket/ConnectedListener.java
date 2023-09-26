@@ -8,4 +8,5 @@ import java.net.Socket;
  */
 public interface ConnectedListener<T> {
     void onConnected(T t);
+    void onClose(T t);
 }

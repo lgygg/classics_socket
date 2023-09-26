@@ -30,6 +30,7 @@ public class ClientCommunicator {
                     client.connect();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    ChannelManager.getInstance().removeConnectedListener(connectedListener);
                 }
             }
         });

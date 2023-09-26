@@ -94,7 +94,6 @@ public class ClassicsChannel implements Channel<ChannelInfo,Message> {
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
         }
     }
 

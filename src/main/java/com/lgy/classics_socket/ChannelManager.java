@@ -54,29 +54,28 @@ public class ChannelManager {
     }
 
     public void addSocket(Socket socket){
-        if (socket.isConnected()) {
-            String key = getKeyBySocket(socket);
-            if (!channelMap.containsKey(key)) {
-                Channel<ChannelInfo,Message> channel = new ClassicsChannel(socket);
-                channelMap.put(key,channel);
-                notify(channel);
-            }
-        }else {
-            //TODO 未连接需要提供回调方法
+        String key = getKeyBySocket(socket);
+        if (!channelMap.containsKey(key)) {
+            Channel<ChannelInfo,Message> channel = new ClassicsChannel(socket);
+            addChannel(channel);
         }
     }
 
     public void addChannel(Channel<ChannelInfo,Message> channel){
-        if (channel.isConnected()) {
-            CommunicatorInfo local = channel.getChannelInfo().getLocal();
-            CommunicatorInfo remote = channel.getChannelInfo().getRemote();
+        CommunicatorInfo local = channel.getChannelInfo().getLocal();
+        CommunicatorInfo remote = channel.getChannelInfo().getRemote();
+        if (channel.isConnected()&& !channel.isClose()) {
             String key = CommonUtil.getKeyByMD5(local.getIp(),local.getPort(),remote.getIp(),remote.getPort());
             if (!channelMap.containsKey(key)) {
                 channelMap.put(key,channel);
                 notify(channel);
             }
         }else {
-            //TODO 未连接需要提供回调方法
+            remoteChannel(local,remote);
+            for (ConnectedListener<ChannelInfo> listener :
+                    connectedListeners) {
+                listener.onClose(channel.getChannelInfo());
+            }
         }
     }
 
@@ -85,8 +84,14 @@ public class ChannelManager {
             CommunicatorInfo local = info.getLocal();
             CommunicatorInfo remote = info.getRemote();
             String key = CommonUtil.getKeyByMD5(local.getIp(),local.getPort(),remote.getIp(),remote.getPort());
-            return channelMap.get(key);
+            Channel<ChannelInfo,Message> channel = channelMap.get(key);
+            if (channel.isConnected()&& !channel.isClose()) {
+                return channel;
+            }else {
+                remoteChannel(local,remote);
+            }
         }
+
         return null;
     }
 
@@ -98,4 +103,12 @@ public class ChannelManager {
         this.connectedListeners.add(connectedListener);
     }
 
+    public void removeConnectedListener(ConnectedListener<ChannelInfo> connectedListener){
+        this.connectedListeners.remove(connectedListener);
+    }
+
+    public void clear(){
+        channelMap.clear();
+        connectedListeners.clear();
+    }
 }
